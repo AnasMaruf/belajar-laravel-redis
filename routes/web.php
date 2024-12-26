@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::get('/session/new', [\App\Http\Controllers\SessionController::class, "set"]);
+Route::get('/session/get', [\App\Http\Controllers\SessionController::class, "get"]);
 Route::get('/', function () {
     return view('welcome');
 });

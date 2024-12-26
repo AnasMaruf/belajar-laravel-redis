@@ -99,4 +99,60 @@ class RedisTest extends TestCase
         $result = Redis::geosearch("sellers", new FromLonLat(106.821666, -6.175494), new ByRadius(5, "km"));
         self::assertEquals(["Toko B","Toko A"], $result);
     }
+
+    public function testHyperLogLog()
+    {
+        Redis::pfadd("visitors", "eko", "kurniawan", "khannedy");
+        Redis::pfadd("visitors", "eko", "budi", "joko");
+        Redis::pfadd("visitors", "rully", "budi", "joko");
+
+        $result = Redis::pfcount("visitors");
+        self::assertEquals(9, $result);
+    }
+
+    public function testPipeline()
+    {
+        Redis::pipeline(function ($pipeline){
+            $pipeline->setex("name", 2, "Eko");
+            $pipeline->setex("address", 2, "Indonesia");
+        });
+
+        $response = Redis::get("name");
+        self::assertEquals("Eko", $response);
+        $response = Redis::get("address");
+        self::assertEquals("Indonesia", $response);
+    }
+
+    public function testTransaction()
+    {
+        Redis::transaction(function ($transaction){
+            $transaction->setex("name", 2, "Eko");
+            $transaction->setex("address", 2, "Indonesia");
+        });
+
+        $response = Redis::get("name");
+        self::assertEquals("Eko", $response);
+        $response = Redis::get("address");
+        self::assertEquals("Indonesia", $response);
+    }
+
+    public function testPublish()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            Redis::publish("channel-3", "Hello World $i");
+            Redis::publish("channel-4", "Good Bye $i");
+        }
+        self::assertTrue(true);
+    }
+
+    public function testPublishStream()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            Redis::xadd("members", "*", [
+                "name" => "Eko $i",
+                "address" => "Indonesia"
+            ]);
+        }
+        self::assertTrue(true);
+    }
 }
