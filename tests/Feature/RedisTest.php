@@ -102,43 +102,60 @@ class RedisTest extends TestCase
 
     public function testHyperLogLog()
     {
-        Redis::pfadd("visitors","muhammad","anas","maruf");
-        Redis::pfadd("visitors","anas","budi","joko");
-        Redis::pfadd("visitors","rully","budi","joko");
+
+        Redis::pfadd("visitors", "eko", "kurniawan", "khannedy");
+        Redis::pfadd("visitors", "eko", "budi", "joko");
+        Redis::pfadd("visitors", "rully", "budi", "joko");
 
         $result = Redis::pfcount("visitors");
-        self::assertEquals(6, $result);
+        self::assertEquals(9, $result);
     }
 
     public function testPipeline()
     {
-        Redis::pipeline(function ($pipeline) {
-            $pipeline->setex("name",2,"anas");
-            $pipeline->setex("address",2,"indonesia");
+
+        Redis::pipeline(function ($pipeline){
+            $pipeline->setex("name", 2, "Eko");
+            $pipeline->setex("address", 2, "Indonesia");
         });
+
         $response = Redis::get("name");
-        self::assertEquals("anas",$response);
+        self::assertEquals("Eko", $response);
         $response = Redis::get("address");
-        self::assertEquals("indonesia",$response);
+        self::assertEquals("Indonesia", $response);
     }
 
     public function testTransaction()
     {
-        Redis::transaction(function ($transaction) {
-            $transaction->setex("name",2,"anas");
-            $transaction->setex("address",2,"indonesia");
+
+        Redis::transaction(function ($transaction){
+            $transaction->setex("name", 2, "Eko");
+            $transaction->setex("address", 2, "Indonesia");
         });
+
         $response = Redis::get("name");
-        self::assertEquals("anas",$response);
+        self::assertEquals("Eko", $response);
         $response = Redis::get("address");
-        self::assertEquals("indonesia",$response);
+        self::assertEquals("Indonesia", $response);
     }
 
     public function testPublish()
     {
-        for ($i=0; $i < 10; $i++) {
-            Redis::publish("channel-1","Hello World $i");
-            Redis::publish("channel-2","Good Bye $i");
+
+        for ($i = 0; $i < 10; $i++) {
+            Redis::publish("channel-3", "Hello World $i");
+            Redis::publish("channel-4", "Good Bye $i");
+        }
+        self::assertTrue(true);
+    }
+
+    public function testPublishStream()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            Redis::xadd("members", "*", [
+                "name" => "Eko $i",
+                "address" => "Indonesia"
+            ]);
         }
         self::assertTrue(true);
     }
